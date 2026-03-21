@@ -2,12 +2,11 @@ import React from "react";
 import { Button, Col, Container } from "react-bootstrap";
 import { Form, Formik, FormikHelpers } from "formik";
 import FormInput from "../../components/Form/FormInput";
-import axios, { AxiosError } from "axios";
 import { alertActions } from "../../store/slices/alertSlice";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3002";
+import { AxiosError } from "axios";
+import axiosClient from "../../utils/axios_client";
 
 interface IForgotPasswordFormValues {
   email: string;
@@ -25,7 +24,7 @@ const ForgotPassword = () => {
     submitProps: FormikHelpers<IForgotPasswordFormValues>
   ) => {
     try {
-      await axios.post(`${API_BASE_URL}/password_resets`, { email: values.email });
+      await axiosClient.post(`/password_resets`, { email: values.email });
       dispatch(
         alertActions.showAlert({
           variant: "success",

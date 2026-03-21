@@ -14,14 +14,22 @@ const axiosClient = axios.create({
   },
 });
 
-axiosClient.interceptors.request.use((config) => {
-  const token = getAuthToken();
-  if (token && token !== "EXPIRED") {
-    config.headers["Authorization"] = `Bearer ${token}`;
+axiosClient.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+
+    // Attach the token only if it exists and is valid
+    if (token && token !== "EXPIRED") {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    // Always return the config, not all routes need an Authorization header, this is the APIs responsibility.
     return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return Promise.reject("Authentication token not found! Please login again.");
-});
+);
 
 // Add response interceptor for debugging
 axiosClient.interceptors.response.use(

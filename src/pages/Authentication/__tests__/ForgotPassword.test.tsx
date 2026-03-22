@@ -9,7 +9,7 @@ import { vi } from "vitest";
 import { AxiosError } from "axios";
 import axiosClient from "../../../utils/axios_client";
 
-vi.mock("axiosClient");
+vi.mock("../../../utils/axios_client");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -98,7 +98,7 @@ describe('Test Forgot Password Api Error', () => {
   it('Handles API unavailable', async () => {
     const user = userEvent.setup();
     (axiosClient.post as any).mockRejectedValue(
-      new axiosClientError("Network Error", 'ERR_NETWORK')
+      new AxiosError("Network Error", 'ERR_NETWORK')
     );
 
     const store = makeMockStore();
@@ -139,7 +139,7 @@ describe('Test Successful Password Reset Request', () => {
         <ForgotPassword />
       </Provider>
     );
-    
+
     let emailInput = screen.getByRole('textbox');
     let submitButton = screen.getByRole('button', {name: submitText});
 

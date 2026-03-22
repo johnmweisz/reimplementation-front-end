@@ -10,7 +10,7 @@ import { vi } from "vitest";
 import { AxiosError } from "axios";
 import axiosClient from "../../../utils/axios_client";
 
-vi.mock("axiosClient");
+vi.mock("../../../utils/axios_client");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -162,7 +162,7 @@ describe("Test Reset Password Api Error", () => {
   it("handles API unavailable", async () => {
     const user = userEvent.setup();
     (axiosClient.put as any).mockRejectedValue(
-      new axiosClientError("Network Error", "ERR_NETWORK")
+      new AxiosError("Network Error", "ERR_NETWORK")
     );
 
     const store = renderComponent();
@@ -190,7 +190,7 @@ describe("Test Reset Password Api Error", () => {
 
   it("shows server error message when API returns one", async () => {
     const user = userEvent.setup();
-    const serverError = new axiosClientError("Token has expired.", "ERR_BAD_REQUEST");
+    const serverError = new AxiosError("Token has expired.", "ERR_BAD_REQUEST");
     (serverError as any).response = {
       status: 422,
       statusText: "Unprocessable Entity",

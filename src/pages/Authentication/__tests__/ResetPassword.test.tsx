@@ -7,10 +7,9 @@ import { configureStore } from "@reduxjs/toolkit";
 import alertReducer from "store/slices/alertSlice";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { vi } from "vitest";
-import axios from "axios";
 import { AxiosError } from "axios";
 
-vi.mock("axios");
+vi.mock("axiosClient");
 
 beforeEach(() => {
   vi.clearAllMocks();

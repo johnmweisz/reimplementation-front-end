@@ -8,6 +8,7 @@ import alertReducer from "store/slices/alertSlice";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { vi } from "vitest";
 import { AxiosError } from "axios";
+import axiosClient from "../../../utils/axios_client";
 
 vi.mock("axiosClient");
 
@@ -103,7 +104,7 @@ describe("Test Reset Password Form Validations", () => {
       expect(screen.getByText(/password must be at least 6 characters/i)).toBeInTheDocument();
     });
     expect(submitButton).toBeDisabled();
-    expect(axios.put).not.toHaveBeenCalled();
+    expect(axiosClient.put).not.toHaveBeenCalled();
   });
 
   it("does not submit form when passwords do not match", async () => {
@@ -122,14 +123,14 @@ describe("Test Reset Password Form Validations", () => {
       expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
     });
     expect(submitButton).toBeDisabled();
-    expect(axios.put).not.toHaveBeenCalled();
+    expect(axiosClient.put).not.toHaveBeenCalled();
   });
 });
 
 describe("Test Successful Password Reset", () => {
   it("submits form successfully", async () => {
     const user = userEvent.setup();
-    (axios.put as any).mockResolvedValue({
+    (axiosClient.put as any).mockResolvedValue({
       status: 200,
       data: { message: "Password Successfully Updated" },
     });
@@ -146,7 +147,7 @@ describe("Test Successful Password Reset", () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(axios.put).toHaveBeenCalledWith(
+      expect(axiosClient.put).toHaveBeenCalledWith(
         expect.stringContaining("/password_resets/valid-token"),
         { user: { password: validPassword } }
       );
@@ -160,8 +161,8 @@ describe("Test Successful Password Reset", () => {
 describe("Test Reset Password Api Error", () => {
   it("handles API unavailable", async () => {
     const user = userEvent.setup();
-    (axios.put as any).mockRejectedValue(
-      new AxiosError("Network Error", "ERR_NETWORK")
+    (axiosClient.put as any).mockRejectedValue(
+      new axiosClientError("Network Error", "ERR_NETWORK")
     );
 
     const store = renderComponent();
@@ -181,7 +182,7 @@ describe("Test Reset Password Api Error", () => {
       expect(state.alert.variant).toBe("danger");
     });
 
-    expect(axios.put).toHaveBeenCalledWith(
+    expect(axiosClient.put).toHaveBeenCalledWith(
       expect.stringContaining("/password_resets/valid-token"),
       { user: { password: validPassword } }
     );
@@ -189,7 +190,7 @@ describe("Test Reset Password Api Error", () => {
 
   it("shows server error message when API returns one", async () => {
     const user = userEvent.setup();
-    const serverError = new AxiosError("Token has expired.", "ERR_BAD_REQUEST");
+    const serverError = new axiosClientError("Token has expired.", "ERR_BAD_REQUEST");
     (serverError as any).response = {
       status: 422,
       statusText: "Unprocessable Entity",
@@ -197,7 +198,7 @@ describe("Test Reset Password Api Error", () => {
       headers: {},
       config: {} as any,
     };
-    (axios.put as any).mockRejectedValue(serverError);
+    (axiosClient.put as any).mockRejectedValue(serverError);
 
     const store = renderComponent();
 

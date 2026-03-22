@@ -7,6 +7,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import alertReducer from "store/slices/alertSlice";
 import { vi } from "vitest";
 import { AxiosError } from "axios";
+import axiosClient from "../../../utils/axios_client";
 
 vi.mock("axiosClient");
 
@@ -65,7 +66,7 @@ describe('Test Forgot Password Form Validations', () => {
     await user.tab();
     await user.click(submitButton);
 
-    expect(axios.post).not.toHaveBeenCalled();
+    expect(axiosClient.post).not.toHaveBeenCalled();
 
     expect(screen.getByText(/required/i)).toBeInTheDocument();
   });
@@ -89,15 +90,15 @@ describe('Test Forgot Password Form Validations', () => {
       expect(screen.getByText(/invalid email address/i)).toBeInTheDocument();
     });
     expect(submitButton).toBeDisabled();
-    expect(axios.post).not.toHaveBeenCalled();
+    expect(axiosClient.post).not.toHaveBeenCalled();
   });
 });
 
 describe('Test Forgot Password Api Error', () => {
   it('Handles API unavailable', async () => {
     const user = userEvent.setup();
-    (axios.post as any).mockRejectedValue(
-      new AxiosError("Network Error", 'ERR_NETWORK')
+    (axiosClient.post as any).mockRejectedValue(
+      new axiosClientError("Network Error", 'ERR_NETWORK')
     );
 
     const store = makeMockStore();
@@ -119,7 +120,7 @@ describe('Test Forgot Password Api Error', () => {
       expect(state.alert.variant).toBe('danger');
     });
 
-    expect(axios.post).toHaveBeenCalledWith(
+    expect(axiosClient.post).toHaveBeenCalledWith(
       expect.stringContaining('/password_resets'), {email: validEmail}
     );
   });
@@ -128,7 +129,7 @@ describe('Test Forgot Password Api Error', () => {
 describe('Test Successful Password Reset Request', () => {
   it('submit form successfully', async () => {
     const user = userEvent.setup();
-    (axios.post as any).mockResolvedValue({
+    (axiosClient.post as any).mockResolvedValue({
       status: 200,
       data: { message: 'If the email exists, a reset link has been sent.'},
     });
@@ -145,7 +146,7 @@ describe('Test Successful Password Reset Request', () => {
     await user.type(emailInput, validEmail);
     await user.click(submitButton);
 
-    expect(axios.post).toHaveBeenCalledWith(
+    expect(axiosClient.post).toHaveBeenCalledWith(
       expect.stringContaining('/password_resets'), {email: validEmail}
     );
 

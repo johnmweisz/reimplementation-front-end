@@ -23,7 +23,7 @@ axiosClient.interceptors.request.use(
       config.headers["Authorization"] = `Bearer ${token}`;
     }
 
-    // Always return the config, not all routes need an Authorization header, this is the APIs responsibility.
+    // Always return the config, not all routes need an Authorization header.
     return config;
   },
   (error) => {

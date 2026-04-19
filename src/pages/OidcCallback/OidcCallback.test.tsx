@@ -184,17 +184,17 @@ describe("OidcCallback", () => {
   it("shows error parameter in URL query and does not make API call", async () => {
     renderCallback(`${CALLBACK_ROUTE}?error=access_denied`, false);
 
-    // No backend call made
+    // Wait for the redirect — the real observable side effect in this branch
     await waitFor(() => {
-      expect(vi.mocked(axiosClient).post).not.toHaveBeenCalled();
+      expect(screen.getByText("Login")).toBeInTheDocument();
     });
+
+    // After the full useEffect has run, the backend should never have been called
+    expect(vi.mocked(axiosClient).post).not.toHaveBeenCalled();
 
     // Alert was dispatched with the provider error value
     expect(store.getState().alert.show).toBe(true);
     expect(store.getState().alert.variant).toBe("danger");
     expect(store.getState().alert.message).toContain("access_denied");
-
-    // Redirected to login
-    expect(screen.getByText("Login")).toBeInTheDocument();
   });
 });

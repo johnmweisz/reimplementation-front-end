@@ -117,8 +117,18 @@ describe("OidcCallback", () => {
       expect(vi.mocked(authUtils.setAuthToken)).toHaveBeenCalledWith(MOCK_JWT_TOKEN);
     }, { timeout: 3000 });
 
+    // localStorage session was persisted
     const session = JSON.parse(localStorage.getItem("session") || "{}");
     expect(session.user).toBeDefined();
+
+    // Redux received the correct token
+    expect(store.getState().authentication.authToken).toBe(MOCK_JWT_TOKEN);
+    expect(store.getState().authentication.user).toEqual(MOCK_AUTH_PAYLOAD);
+
+    // Navigated to the dashboard
+    await waitFor(() => {
+      expect(screen.getByText("Home")).toBeInTheDocument();
+    });
   });
 
   it("does not make API call when missing code", async () => {

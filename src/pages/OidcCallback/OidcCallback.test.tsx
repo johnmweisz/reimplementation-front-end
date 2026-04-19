@@ -154,19 +154,15 @@ describe("OidcCallback", () => {
 
     renderCallback(CALLBACK_URL, false);
 
+    // Wait for the redirect — confirms the catch block fully ran
     await waitFor(() => {
-      expect(vi.mocked(axiosClient).post).toHaveBeenCalled();
+      expect(screen.getByText("Login")).toBeInTheDocument();
     });
 
     // Alert was dispatched with the backend error message
-    await waitFor(() => {
-      expect(store.getState().alert.show).toBe(true);
-    });
+    expect(store.getState().alert.show).toBe(true);
     expect(store.getState().alert.variant).toBe("danger");
     expect(store.getState().alert.message).toBe(MOCK_ERROR_RESPONSE.error);
-
-    // Redirected to login
-    expect(screen.getByText("Login")).toBeInTheDocument();
   });
 
   it("handles network timeout during callback", async () => {
